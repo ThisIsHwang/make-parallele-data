@@ -5,6 +5,7 @@ End-to-end pipeline to reproduce TranslateGemma-style synthetic parallel data ge
 - MetricX-24 XXL QE scoring **locally in Python** (no server required)
 
 This README is written so you can clone the repo and run data generation in one go.
+한국어 안내는 `README.ko.md`를 참고하세요.
 
 ---
 
