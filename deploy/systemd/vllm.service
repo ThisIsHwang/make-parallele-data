@@ -1,0 +1,14 @@
+[Unit]
+Description=vLLM Serve
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/synth-parallel
+Environment=VLLM_API_KEY=token-abc123
+ExecStart=/opt/synth-parallel/scripts/launch_vllm_h100x8.sh
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

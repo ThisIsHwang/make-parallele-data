@@ -1,0 +1,37 @@
+[project]
+name = "synth-parallel"
+version = "0.1.0"
+description = "Local pipeline to synthesize parallel translation data from MADLAD-400"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "Codex"}]
+
+dependencies = [
+  "pyyaml>=6.0",
+  "datasets>=2.18",
+  "tqdm>=4.66",
+  "openai>=1.0",
+  "httpx>=0.25",
+  "numpy>=1.24",
+  "orjson>=3.9",
+]
+
+[project.optional-dependencies]
+metricx = [
+  "torch>=2.1",
+  "transformers>=4.41",
+]
+parquet = ["pyarrow>=14.0"]
+
+test = [
+  "pytest>=7.4",
+  "pytest-asyncio>=0.23",
+]
+
+[project.scripts]
+synth_parallel = "synth_parallel.cli:main"
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
