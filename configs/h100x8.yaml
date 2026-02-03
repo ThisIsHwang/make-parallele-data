@@ -12,6 +12,9 @@ data:
   target_examples_total: 10000
   sample_pool_size: 1000000
   streaming: true
+  hf_endpoint: null
+  hf_timeout_s: 120
+  hf_enable_hf_transfer: false
 
 segmentation:
   mode: auto

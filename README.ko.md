@@ -27,6 +27,7 @@ cd make-data
 | Qwen 모델명 | `Qwen/Qwen3-235B-A22B-Instruct-2507` | `configs/h100x8.yaml` -> `teacher.model` |
 | API 키 | `your-key` | `.env` -> `VLLM_API_KEY` |
 | 샤드 수 | `8` | `.env` -> `SHARDS` |
+| HF endpoint (옵션) | `https://hf-mirror.com` | `configs/h100x8.yaml` -> `data.hf_endpoint` |
 
 ---
 
@@ -192,6 +193,7 @@ wait
 - `final_generation.num_candidates`
 - `metricx.checkpoint`, `metricx.backend`, `metricx.batch_size`, `metricx.device`
 - `filters.llm_judge.enabled`
+- `data.hf_timeout_s`, `data.hf_endpoint`, `data.hf_enable_hf_transfer` (HF timeout/미러)
 
 ---
 

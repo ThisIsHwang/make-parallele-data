@@ -4,7 +4,9 @@ import itertools
 import re
 from typing import Any, Dict, Generator, Iterable, List, Optional, Tuple
 
-from datasets import load_dataset
+import os
+
+from datasets import DownloadConfig, load_dataset
 
 from synth_parallel.utils.text import approx_token_len, merge_short, split_lines, split_sentences
 
@@ -12,11 +14,27 @@ _HTML_RE = re.compile(r"<[^>]+>")
 
 
 def load_madlad(cfg: Dict[str, Any]):
+    data_cfg = cfg["data"]
+    hf_endpoint = data_cfg.get("hf_endpoint")
+    if hf_endpoint:
+        os.environ["HF_ENDPOINT"] = hf_endpoint
+    hf_timeout = data_cfg.get("hf_timeout_s")
+    if hf_timeout:
+        os.environ["HF_HUB_TIMEOUT"] = str(hf_timeout)
+        os.environ["HF_HUB_READ_TIMEOUT"] = str(hf_timeout)
+    if data_cfg.get("hf_enable_hf_transfer"):
+        os.environ["HF_HUB_ENABLE_HF_TRANSFER"] = "1"
+
+    download_config = None
+    if hf_timeout:
+        download_config = DownloadConfig(timeout=hf_timeout)
+
     ds = load_dataset(
-        cfg["data"]["madlad_dataset"],
-        cfg["data"]["src_lang"],
-        split=cfg["data"]["madlad_split"],
-        streaming=cfg["data"].get("streaming", True),
+        data_cfg["madlad_dataset"],
+        data_cfg["src_lang"],
+        split=data_cfg["madlad_split"],
+        streaming=data_cfg.get("streaming", True),
+        download_config=download_config,
     )
     return ds
 

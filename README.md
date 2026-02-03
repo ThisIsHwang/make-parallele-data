@@ -28,6 +28,7 @@ Fill in these values in `.env` and/or your config:
 | Qwen model name | `Qwen/Qwen3-235B-A22B-Instruct-2507` | `configs/h100x8.yaml` -> `teacher.model` |
 | API key | `your-key` | `.env` -> `VLLM_API_KEY` |
 | Shards | `8` | `.env` -> `SHARDS` |
+| HF endpoint (optional) | `https://hf-mirror.com` | `configs/h100x8.yaml` -> `data.hf_endpoint` |
 
 ---
 
@@ -195,6 +196,7 @@ See `configs/example.yaml` / `configs/h100x8.yaml`:
 - `final_generation.num_candidates`
 - `metricx.checkpoint`, `metricx.backend`, `metricx.batch_size`, `metricx.device`
 - `filters.llm_judge.enabled`
+- `data.hf_timeout_s`, `data.hf_endpoint`, `data.hf_enable_hf_transfer` (HF timeout/미러)
 
 ---
 

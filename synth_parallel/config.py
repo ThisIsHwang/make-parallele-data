@@ -24,6 +24,9 @@ DEFAULT_CONFIG: Dict[str, Any] = {
         "target_examples_total": 10000,
         "sample_pool_size": 1000000,
         "streaming": True,
+        "hf_endpoint": None,
+        "hf_timeout_s": 120,
+        "hf_enable_hf_transfer": False,
     },
     "segmentation": {
         "mode": "auto",
