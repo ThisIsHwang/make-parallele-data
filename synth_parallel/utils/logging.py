@@ -6,7 +6,7 @@ import os
 from typing import Any, Dict
 
 
-def setup_logger(name: str, level: str = "INFO") -> logging.Logger:
+def setup_logger(name: str, level: str = "INFO", file_path: str | None = None) -> logging.Logger:
     logger = logging.getLogger(name)
     if logger.handlers:
         return logger
@@ -18,6 +18,10 @@ def setup_logger(name: str, level: str = "INFO") -> logging.Logger:
     )
     handler.setFormatter(formatter)
     logger.addHandler(handler)
+    if file_path:
+        file_handler = logging.FileHandler(file_path)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
     return logger
 
 

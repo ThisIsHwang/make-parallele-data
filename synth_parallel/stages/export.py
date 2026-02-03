@@ -4,7 +4,7 @@ import time
 from typing import Any, Dict, Optional
 
 from synth_parallel.utils.io import maybe_write_parquet, read_jsonl, write_jsonl
-from synth_parallel.utils.logging import update_stats
+from synth_parallel.utils.logging import setup_logger, update_stats
 from synth_parallel.utils.paths import resolve_inputs
 from synth_parallel.utils.versions import collect_versions
 
@@ -15,6 +15,7 @@ def run(
     limit: Optional[int] = None,
 ) -> str:
     start = time.time()
+    logger = setup_logger("synth_parallel", cfg["run"]["log_level"])
     input_path = f"{run_dir}/filtered.jsonl"
     selected_sources_path = f"{run_dir}/selected_sources.jsonl"
 
@@ -45,6 +46,7 @@ def run(
 
     outputs = []
     processed = 0
+    log_every = cfg["run"].get("log_every", 10000)
     for path in resolve_inputs(input_path):
         for rec in read_jsonl(path):
             if limit and processed >= limit:
@@ -71,6 +73,8 @@ def run(
             }
             outputs.append(out)
             processed += 1
+            if log_every and processed % log_every == 0:
+                logger.info("export progress: processed=%s", processed)
         if limit and processed >= limit:
             break
 
@@ -81,6 +85,7 @@ def run(
     else:
         output_path = f"{run_dir}/final.jsonl"
         write_jsonl(output_path, outputs, append=False)
+    logger.info("export wrote=%s output=%s", processed, output_path)
 
     update_stats(
         run_dir,

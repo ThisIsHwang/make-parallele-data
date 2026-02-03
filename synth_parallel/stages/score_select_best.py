@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional
 
 from synth_parallel.metricx import MetricXScorer
 from synth_parallel.utils.io import read_jsonl, write_jsonl_one
-from synth_parallel.utils.logging import update_stats
+from synth_parallel.utils.logging import setup_logger, update_stats
 from synth_parallel.utils.paths import shard_path, resolve_inputs
 
 
@@ -19,6 +19,7 @@ def run(
     overwrite: bool = False,
 ) -> str:
     start = time.time()
+    logger = setup_logger("synth_parallel", cfg["run"]["log_level"])
     sources_path = f"{run_dir}/selected_sources.jsonl"
     candidates_path = shard_path(f"{run_dir}/candidates_128.jsonl", shard_id, num_shards)
     output_path = shard_path(f"{run_dir}/selected_best.jsonl", shard_id, num_shards)
@@ -41,6 +42,7 @@ def run(
     scorer = MetricXScorer(metric_cfg)
 
     processed = 0
+    log_every = cfg["run"].get("log_every", 10000)
     for path in resolve_inputs(candidates_path):
         for rec in read_jsonl(path):
             if limit and processed >= limit:
@@ -72,6 +74,13 @@ def run(
                 ]
             write_jsonl_one(output_path, record, append=True)
             processed += 1
+            if log_every and processed % log_every == 0:
+                logger.info(
+                    "score_select_best progress: processed=%s shard=%s/%s",
+                    processed,
+                    shard_id,
+                    num_shards,
+                )
         if limit and processed >= limit:
             break
 

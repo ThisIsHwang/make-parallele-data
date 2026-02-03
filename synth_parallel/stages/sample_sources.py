@@ -7,7 +7,7 @@ from synth_parallel.data.madlad import iter_segments
 from synth_parallel.sampling.bucketer import BucketSampler, LengthMeasurer, find_bucket
 from synth_parallel.utils.hash import hash_record
 from synth_parallel.utils.io import write_jsonl
-from synth_parallel.utils.logging import update_stats
+from synth_parallel.utils.logging import setup_logger, update_stats
 from synth_parallel.utils.text import approx_token_len
 
 
@@ -17,6 +17,7 @@ def run(
     limit: Optional[int] = None,
 ) -> str:
     start = time.time()
+    logger = setup_logger("synth_parallel", cfg["run"]["log_level"])
     total_target = cfg["data"]["sample_pool_size"]
     blob_cfg = cfg["final_generation"]["blob"]
 
@@ -48,6 +49,7 @@ def run(
     )
 
     seen = 0
+    log_every = cfg["run"].get("log_every", 10000)
     for seg in iter_segments(cfg, limit=limit, include_blob=blob_enabled):
         text = seg["source_text"]
         length = measurer(text)
@@ -73,11 +75,14 @@ def run(
         else:
             sentence_sampler.add(bucket_id, record)
         seen += 1
+        if log_every and seen % log_every == 0:
+            logger.info("sample_sources progress: seen=%s", seen)
 
     records = sentence_sampler.finalize() + blob_sampler.finalize()
 
     output_path = f"{run_dir}/sampled_sources.jsonl"
     write_jsonl(output_path, records, append=False)
+    logger.info("sample_sources wrote=%s output=%s", len(records), output_path)
 
     update_stats(
         run_dir,

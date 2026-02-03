@@ -8,7 +8,7 @@ from synth_parallel.metricx import MetricXScorer
 from synth_parallel.teacher.client import AsyncTeacherClient, GenerationParams
 from synth_parallel.teacher.prompts import build_translation_messages
 from synth_parallel.utils.io import read_jsonl, write_jsonl
-from synth_parallel.utils.logging import update_stats
+from synth_parallel.utils.logging import setup_logger, update_stats
 from synth_parallel.utils.shard import in_shard
 from synth_parallel.utils.paths import shard_path
 
@@ -65,6 +65,7 @@ def run(
     overwrite: bool = False,
 ) -> str:
     start = time.time()
+    logger = setup_logger("synth_parallel", cfg["run"]["log_level"])
     input_path = f"{run_dir}/sampled_sources.jsonl"
     output_path = shard_path(f"{run_dir}/prefilter_candidates.jsonl", shard_id, num_shards)
 
@@ -125,7 +126,15 @@ def run(
             kept += 1
         if batch_records:
             write_jsonl(output_path, batch_records, append=True)
+            if log_every and kept % log_every == 0:
+                logger.info(
+                    "prefilter_score progress: processed=%s shard=%s/%s",
+                    kept,
+                    shard_id,
+                    num_shards,
+                )
 
+    log_every = cfg["run"].get("log_every", 10000)
     async def _run_async():
         nonlocal total, batch
         for rec in read_jsonl(input_path):

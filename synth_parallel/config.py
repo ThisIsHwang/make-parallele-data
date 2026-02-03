@@ -14,6 +14,7 @@ DEFAULT_CONFIG: Dict[str, Any] = {
         "out_dir": "./runs/exp001",
         "seed": 1234,
         "log_level": "INFO",
+        "log_every": 10000,
     },
     "data": {
         "madlad_dataset": "allenai/madlad-400",

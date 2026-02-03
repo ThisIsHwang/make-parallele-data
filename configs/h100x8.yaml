@@ -2,6 +2,7 @@ run:
   out_dir: ./runs/h100x8
   seed: 1234
   log_level: INFO
+  log_every: 10000
 
 data:
   madlad_dataset: allenai/madlad-400

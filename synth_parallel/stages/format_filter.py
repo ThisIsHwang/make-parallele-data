@@ -7,7 +7,7 @@ from typing import Any, Dict, Optional
 from synth_parallel.filters import LLMJudge, RuleBasedFilter
 from synth_parallel.teacher.client import AsyncTeacherClient
 from synth_parallel.utils.io import read_jsonl, write_jsonl_one
-from synth_parallel.utils.logging import update_stats
+from synth_parallel.utils.logging import setup_logger, update_stats
 from synth_parallel.utils.paths import shard_path, resolve_inputs
 
 
@@ -21,6 +21,7 @@ def run(
     overwrite: bool = False,
 ) -> str:
     start = time.time()
+    logger = setup_logger("synth_parallel", cfg["run"]["log_level"])
     input_path = shard_path(f"{run_dir}/selected_best.jsonl", shard_id, num_shards)
     output_path = shard_path(f"{run_dir}/filtered.jsonl", shard_id, num_shards)
     rejected_path = shard_path(f"{run_dir}/rejected.jsonl", shard_id, num_shards)
@@ -68,6 +69,7 @@ def run(
             write_jsonl_one(output_path, rec, append=True)
         return True
 
+    log_every = cfg["run"].get("log_every", 10000)
     async def _run_async():
         tasks = []
         processed = 0
@@ -77,6 +79,13 @@ def run(
                     break
                 tasks.append(asyncio.create_task(_process_one(rec)))
                 processed += 1
+                if log_every and processed % log_every == 0:
+                    logger.info(
+                        "format_filter progress: processed=%s shard=%s/%s",
+                        processed,
+                        shard_id,
+                        num_shards,
+                    )
                 if len(tasks) >= cfg["teacher"]["max_concurrency"]:
                     await asyncio.gather(*tasks)
                     tasks = []

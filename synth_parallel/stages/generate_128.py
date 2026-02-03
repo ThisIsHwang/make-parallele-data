@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional
 from synth_parallel.teacher.client import AsyncTeacherClient, GenerationParams
 from synth_parallel.teacher.prompts import build_translation_messages
 from synth_parallel.utils.io import read_jsonl, write_jsonl_one
-from synth_parallel.utils.logging import update_stats
+from synth_parallel.utils.logging import setup_logger, update_stats
 from synth_parallel.utils.shard import in_shard
 from synth_parallel.utils.paths import shard_path
 
@@ -73,6 +73,7 @@ def run(
     overwrite: bool = False,
 ) -> str:
     start = time.time()
+    logger = setup_logger("synth_parallel", cfg["run"]["log_level"])
     input_path = f"{run_dir}/selected_sources.jsonl"
     output_path = shard_path(f"{run_dir}/candidates_128.jsonl", shard_id, num_shards)
 
@@ -95,7 +96,11 @@ def run(
     write_lock = asyncio.Lock()
     queue: asyncio.Queue = asyncio.Queue()
 
+    processed = 0
+    log_every = cfg["run"].get("log_every", 10000)
+
     async def worker():
+        nonlocal processed
         while True:
             item = await queue.get()
             if item is None:
@@ -113,6 +118,14 @@ def run(
                         "translations": texts,
                     },
                     append=True,
+                )
+            processed += 1
+            if log_every and processed % log_every == 0:
+                logger.info(
+                    "generate_128 progress: processed=%s shard=%s/%s",
+                    processed,
+                    shard_id,
+                    num_shards,
                 )
             queue.task_done()
 

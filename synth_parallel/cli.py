@@ -43,7 +43,8 @@ def main() -> None:
     run_dir = cfg.data["run"]["out_dir"]
     os.makedirs(run_dir, exist_ok=True)
 
-    logger = setup_logger("synth_parallel", cfg.data["run"]["log_level"])
+    log_path = os.path.join(run_dir, "logs.txt")
+    logger = setup_logger("synth_parallel", cfg.data["run"]["log_level"], file_path=log_path)
     logger.info("Running stage %s", args.stage)
 
     output = run_stage(

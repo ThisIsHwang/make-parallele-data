@@ -5,7 +5,7 @@ import time
 from typing import Any, Dict, List, Optional
 
 from synth_parallel.utils.io import read_jsonl, write_jsonl
-from synth_parallel.utils.logging import update_stats
+from synth_parallel.utils.logging import setup_logger, update_stats
 from synth_parallel.utils.paths import resolve_inputs
 
 
@@ -23,6 +23,7 @@ def run(
     limit: Optional[int] = None,
 ) -> str:
     start = time.time()
+    logger = setup_logger("synth_parallel", cfg["run"]["log_level"])
     input_path = f"{run_dir}/prefilter_candidates.jsonl"
     output_path = f"{run_dir}/selected_sources.jsonl"
 
@@ -38,6 +39,7 @@ def run(
         heap: List = []
 
     seen = 0
+    log_every = cfg["run"].get("log_every", 10000)
     for path in resolve_inputs(input_path):
         for rec in read_jsonl(path):
             if limit and seen >= limit:
@@ -49,6 +51,8 @@ def run(
                 _push_heap(heaps[bucket_id], rec, improvement, bucket_quota)
             else:
                 _push_heap(heap, rec, improvement, target_total)
+            if log_every and seen % log_every == 0:
+                logger.info("select_sources progress: seen=%s", seen)
         if limit and seen >= limit:
             break
 
@@ -64,6 +68,7 @@ def run(
     selected = selected[:target_total]
 
     write_jsonl(output_path, selected, append=False)
+    logger.info("select_sources wrote=%s output=%s", len(selected), output_path)
 
     update_stats(
         run_dir,
