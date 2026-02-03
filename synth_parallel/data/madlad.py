@@ -27,7 +27,10 @@ def load_madlad(cfg: Dict[str, Any]):
 
     download_config = None
     if hf_timeout:
-        download_config = DownloadConfig(timeout=hf_timeout)
+        try:
+            download_config = DownloadConfig(timeout=hf_timeout)
+        except TypeError:
+            download_config = DownloadConfig()
 
     ds = load_dataset(
         data_cfg["madlad_dataset"],
