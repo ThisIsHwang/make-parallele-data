@@ -33,38 +33,65 @@ def load_madlad(cfg: Dict[str, Any]):
         hf_datasets.logging.get_logger(__name__).warning(
             "Mapping src_lang %s -> %s for MADLAD dataset", raw_lang, resolved_lang
         )
+
+    def _set_hf_env(endpoint_override: Optional[str]) -> None:
+        if endpoint_override is None:
+            os.environ.pop("HF_ENDPOINT", None)
+        else:
+            os.environ["HF_ENDPOINT"] = endpoint_override
+        hf_timeout = data_cfg.get("hf_timeout_s")
+        if hf_timeout:
+            os.environ["HF_HUB_TIMEOUT"] = str(hf_timeout)
+            os.environ["HF_HUB_READ_TIMEOUT"] = str(hf_timeout)
+        if data_cfg.get("hf_enable_hf_transfer"):
+            os.environ["HF_HUB_ENABLE_HF_TRANSFER"] = "1"
+
     hf_endpoint = data_cfg.get("hf_endpoint")
-    if hf_endpoint:
-        os.environ["HF_ENDPOINT"] = hf_endpoint
-    hf_timeout = data_cfg.get("hf_timeout_s")
-    if hf_timeout:
-        os.environ["HF_HUB_TIMEOUT"] = str(hf_timeout)
-        os.environ["HF_HUB_READ_TIMEOUT"] = str(hf_timeout)
-    if data_cfg.get("hf_enable_hf_transfer"):
-        os.environ["HF_HUB_ENABLE_HF_TRANSFER"] = "1"
+    _set_hf_env(hf_endpoint)
 
     download_config = None
+    hf_timeout = data_cfg.get("hf_timeout_s")
     if hf_timeout:
         try:
             download_config = DownloadConfig(timeout=hf_timeout)
         except TypeError:
             download_config = DownloadConfig()
 
-    try:
-        ds = load_dataset(
-            data_cfg["madlad_dataset"],
+    dataset_id = data_cfg["madlad_dataset"]
+    fallbacks = []
+    if dataset_id.lower() == "allenai/madlad-400":
+        fallbacks.append("allenai/MADLAD-400")
+
+    def _load(dataset_name: str):
+        return load_dataset(
+            dataset_name,
             resolved_lang,
             split=data_cfg["madlad_split"],
             streaming=data_cfg.get("streaming", True),
             download_config=download_config,
         )
-        return ds
+
+    try:
+        return _load(dataset_id)
     except DataFileNotFoundError as exc:
+        # Try canonical dataset ID
+        for alt in fallbacks:
+            try:
+                return _load(alt)
+            except Exception:
+                pass
+        # If using HF endpoint/mirror, try default HF
+        if hf_endpoint:
+            try:
+                _set_hf_env("https://huggingface.co")
+                return _load(dataset_id)
+            except Exception:
+                pass
         raise RuntimeError(
             "MADLAD data files not found. "
             f"Check src_lang={raw_lang} (resolved={resolved_lang}). "
             "MADLAD uses lang codes like 'en', 'ko', 'ja'. "
-            "You can set data.lang_map to map ISO3 -> ISO2."
+            "If you use a mirror (data.hf_endpoint), it may not host MADLAD files."
         ) from exc
     except RuntimeError as exc:
         msg = str(exc)

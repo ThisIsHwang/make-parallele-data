@@ -29,6 +29,7 @@ Fill in these values in `.env` and/or your config:
 | API key | `your-key` | `.env` -> `VLLM_API_KEY` |
 | Shards | `8` | `.env` -> `SHARDS` |
 | HF endpoint (optional) | `https://hf-mirror.com` | `configs/h100x8.yaml` -> `data.hf_endpoint` |
+| MADLAD dataset id | `allenai/MADLAD-400` | `configs/h100x8.yaml` -> `data.madlad_dataset` |
 
 ---
 

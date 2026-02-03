@@ -17,7 +17,7 @@ DEFAULT_CONFIG: Dict[str, Any] = {
         "log_every": 10000,
     },
     "data": {
-        "madlad_dataset": "allenai/madlad-400",
+        "madlad_dataset": "allenai/MADLAD-400",
         "madlad_split": "clean",
         "src_lang": "kor",
         "tgt_lang": "eng",

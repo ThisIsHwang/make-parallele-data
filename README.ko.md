@@ -28,6 +28,7 @@ cd make-data
 | API 키 | `your-key` | `.env` -> `VLLM_API_KEY` |
 | 샤드 수 | `8` | `.env` -> `SHARDS` |
 | HF endpoint (옵션) | `https://hf-mirror.com` | `configs/h100x8.yaml` -> `data.hf_endpoint` |
+| MADLAD dataset id | `allenai/MADLAD-400` | `configs/h100x8.yaml` -> `data.madlad_dataset` |
 
 ---
 
