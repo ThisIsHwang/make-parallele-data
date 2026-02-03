@@ -3,7 +3,7 @@ from __future__ import annotations
 import time
 from typing import Any, Dict, Optional
 
-from synth_parallel.data.madlad import iter_segments
+from synth_parallel.data.madlad import iter_segments, resolve_lang
 from synth_parallel.sampling.bucketer import BucketSampler, LengthMeasurer, find_bucket
 from synth_parallel.utils.hash import hash_record
 from synth_parallel.utils.io import write_jsonl
@@ -18,6 +18,7 @@ def run(
 ) -> str:
     start = time.time()
     logger = setup_logger("synth_parallel", cfg["run"]["log_level"])
+    _, resolved_lang = resolve_lang(cfg)
     total_target = cfg["data"]["sample_pool_size"]
     blob_cfg = cfg["final_generation"]["blob"]
 
@@ -62,7 +63,7 @@ def run(
             "length_bucket_id": bucket_id,
             "segment_type": seg.get("segment_type", "sentence"),
             "madlad": {
-                "lang": cfg["data"]["src_lang"],
+                "lang": resolved_lang,
                 "split": cfg["data"]["madlad_split"],
                 "doc_id": seg["doc_id"],
                 "segment_index": seg["segment_index"],

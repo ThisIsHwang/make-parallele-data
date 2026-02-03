@@ -8,14 +8,28 @@ import os
 
 import datasets as hf_datasets
 from datasets import DownloadConfig, load_dataset
+from datasets.exceptions import DataFileNotFoundError
 
 from synth_parallel.utils.text import approx_token_len, merge_short, split_lines, split_sentences
 
 _HTML_RE = re.compile(r"<[^>]+>")
 
 
+def resolve_lang(cfg: Dict[str, Any]) -> tuple[str, str]:
+    data_cfg = cfg["data"]
+    raw_lang = data_cfg["src_lang"]
+    lang_map = data_cfg.get("lang_map", {}) or {}
+    resolved = lang_map.get(raw_lang, raw_lang)
+    return raw_lang, resolved
+
+
 def load_madlad(cfg: Dict[str, Any]):
     data_cfg = cfg["data"]
+    raw_lang, resolved_lang = resolve_lang(cfg)
+    if raw_lang != resolved_lang:
+        hf_datasets.logging.get_logger(__name__).warning(
+            "Mapping src_lang %s -> %s for MADLAD dataset", raw_lang, resolved_lang
+        )
     hf_endpoint = data_cfg.get("hf_endpoint")
     if hf_endpoint:
         os.environ["HF_ENDPOINT"] = hf_endpoint
@@ -36,12 +50,19 @@ def load_madlad(cfg: Dict[str, Any]):
     try:
         ds = load_dataset(
             data_cfg["madlad_dataset"],
-            data_cfg["src_lang"],
+            resolved_lang,
             split=data_cfg["madlad_split"],
             streaming=data_cfg.get("streaming", True),
             download_config=download_config,
         )
         return ds
+    except DataFileNotFoundError as exc:
+        raise RuntimeError(
+            "MADLAD data files not found. "
+            f"Check src_lang={raw_lang} (resolved={resolved_lang}). "
+            "MADLAD uses lang codes like 'en', 'ko', 'ja'. "
+            "You can set data.lang_map to map ISO3 -> ISO2."
+        ) from exc
     except RuntimeError as exc:
         msg = str(exc)
         if "Dataset scripts are no longer supported" in msg:

@@ -21,6 +21,12 @@ DEFAULT_CONFIG: Dict[str, Any] = {
         "madlad_split": "clean",
         "src_lang": "kor",
         "tgt_lang": "eng",
+        "lang_map": {
+            "kor": "ko",
+            "eng": "en",
+            "jpn": "ja",
+            "cmn": "zh",
+        },
         "target_examples_total": 10000,
         "sample_pool_size": 1000000,
         "streaming": True,

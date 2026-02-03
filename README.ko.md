@@ -188,6 +188,7 @@ wait
 
 - `data.sample_pool_size`, `data.target_examples_total`
 - `bucketing.boundaries`
+- `data.lang_map` (예: `kor -> ko`, `eng -> en`)
 - `teacher.base_url`, `teacher.model`, `teacher.max_concurrency`
 - `teacher.validation.min_chars`, `teacher.validation.error_substrings`
 - `teacher.unset_proxies_before_request` (Qwen 호출 직전에만 proxy 해제)

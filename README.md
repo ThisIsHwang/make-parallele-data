@@ -191,6 +191,7 @@ All outputs go under `run.out_dir`:
 See `configs/example.yaml` / `configs/h100x8.yaml`:
 - `data.sample_pool_size`, `data.target_examples_total`
 - `bucketing.boundaries`
+- `data.lang_map` (ex: `kor -> ko`, `eng -> en`)
 - `teacher.base_url`, `teacher.model`, `teacher.max_concurrency`
 - `teacher.validation.min_chars`, `teacher.validation.error_substrings` (invalid 응답 감지/재시도)
 - `teacher.unset_proxies_before_request` (Qwen 호출 직전에만 proxy 해제)
