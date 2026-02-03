@@ -6,6 +6,7 @@ from typing import Any, Dict, Generator, Iterable, List, Optional, Tuple
 
 import os
 
+import datasets as hf_datasets
 from datasets import DownloadConfig, load_dataset
 
 from synth_parallel.utils.text import approx_token_len, merge_short, split_lines, split_sentences
@@ -32,14 +33,24 @@ def load_madlad(cfg: Dict[str, Any]):
         except TypeError:
             download_config = DownloadConfig()
 
-    ds = load_dataset(
-        data_cfg["madlad_dataset"],
-        data_cfg["src_lang"],
-        split=data_cfg["madlad_split"],
-        streaming=data_cfg.get("streaming", True),
-        download_config=download_config,
-    )
-    return ds
+    try:
+        ds = load_dataset(
+            data_cfg["madlad_dataset"],
+            data_cfg["src_lang"],
+            split=data_cfg["madlad_split"],
+            streaming=data_cfg.get("streaming", True),
+            download_config=download_config,
+        )
+        return ds
+    except RuntimeError as exc:
+        msg = str(exc)
+        if "Dataset scripts are no longer supported" in msg:
+            raise RuntimeError(
+                "MADLAD requires datasets<3.0. "
+                f"Current datasets={hf_datasets.__version__} from {hf_datasets.__file__}. "
+                "Install with: uv pip install --python .venv/bin/python 'datasets<3.0'"
+            ) from exc
+        raise
 
 
 def _extract_doc_id(record: Dict[str, Any], fallback: int) -> str:
