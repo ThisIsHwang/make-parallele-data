@@ -90,10 +90,10 @@ def run(
             for rec in read_jsonl(path):
                 if limit and processed >= limit:
                     break
-            if rec["source_id"] in processed_ids:
-                continue
-            tasks.append(asyncio.create_task(_process_one(rec)))
-            processed += 1
+                if rec["source_id"] in processed_ids:
+                    continue
+                tasks.append(asyncio.create_task(_process_one(rec)))
+                processed += 1
                 if log_every and processed % log_every == 0:
                     logger.info(
                         "format_filter progress: processed=%s shard=%s/%s",
