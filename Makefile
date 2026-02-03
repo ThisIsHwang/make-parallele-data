@@ -2,22 +2,20 @@ SHELL := /bin/bash
 
 VENV ?= .venv
 PYTHON := $(VENV)/bin/python
-PIP := $(VENV)/bin/pip
+UV ?= uv
 CONFIG ?= configs/h100x8.yaml
 
 .PHONY: venv install install-metricx vllm pipeline sharded test clean
 
 venv:
-	python3 -m venv $(VENV)
+	$(UV) venv $(VENV)
 
 install: venv
-	$(PIP) install -U pip
-	$(PIP) install -e .
+	$(UV) pip install --python $(PYTHON) -e .
 
 install-metricx: venv
-	$(PIP) install -U pip
-	$(PIP) install -e .
-	./scripts/install_metricx_official.sh
+	$(UV) pip install --python $(PYTHON) -e .
+	METRICX_PYTHON=$(PYTHON) ./scripts/install_metricx_official.sh
 
 vllm:
 	./scripts/launch_vllm_h100x8.sh
@@ -35,7 +33,7 @@ sharded:
 	CONFIG=$(CONFIG) SHARDS=8 ./scripts/run_sharded_pipeline.sh $(CONFIG)
 
 test:
-	$(PIP) install -e ".[test]"
+	$(UV) pip install --python $(PYTHON) -e ".[test]"
 	$(VENV)/bin/pytest -q
 
 clean:

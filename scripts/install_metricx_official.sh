@@ -2,6 +2,7 @@
 set -euo pipefail
 
 REPO_DIR=${REPO_DIR:-third_party/metricx}
+PY_BIN=${METRICX_PYTHON:-}
 
 if [[ ! -d "$REPO_DIR/.git" ]]; then
   echo "[metricx] cloning repo"
@@ -11,10 +12,20 @@ else
   (cd "$REPO_DIR" && git pull --rebase)
 fi
 
-pip install -U pip
+if [[ -z "$PY_BIN" ]]; then
+  if [[ -x .venv/bin/python ]]; then
+    PY_BIN=.venv/bin/python
+  else
+    PY_BIN=python3
+  fi
+fi
 
 if [[ -f "$REPO_DIR/requirements.txt" ]]; then
-  pip install -r "$REPO_DIR/requirements.txt"
+  if ! command -v uv >/dev/null 2>&1; then
+    echo "[metricx] ERROR: uv is required. Install from https://astral.sh/uv/"
+    exit 1
+  fi
+  uv pip install --python "$PY_BIN" -r "$REPO_DIR/requirements.txt"
 else
   echo "[metricx] requirements.txt not found in $REPO_DIR" >&2
 fi

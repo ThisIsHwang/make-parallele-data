@@ -13,14 +13,19 @@ else
 fi
 
 if [[ ! -d "$VENV_DIR" ]]; then
-  python3 -m venv "$VENV_DIR"
+  if ! command -v uv >/dev/null 2>&1; then
+    echo "[metricx] ERROR: uv is required. Install from https://astral.sh/uv/"
+    exit 1
+  fi
+  uv venv "$VENV_DIR"
 fi
 
-source "$VENV_DIR/bin/activate"
-pip install -U pip
-
 if [[ -f "$REPO_DIR/requirements.txt" ]]; then
-  pip install -r "$REPO_DIR/requirements.txt"
+  if ! command -v uv >/dev/null 2>&1; then
+    echo "[metricx] ERROR: uv is required. Install from https://astral.sh/uv/"
+    exit 1
+  fi
+  uv pip install --python "$VENV_DIR/bin/python" -r "$REPO_DIR/requirements.txt"
 else
   echo "[metricx] requirements.txt not found in $REPO_DIR" >&2
 fi

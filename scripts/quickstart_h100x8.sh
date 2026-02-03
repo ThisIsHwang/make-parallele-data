@@ -11,15 +11,18 @@ CONFIG=${CONFIG:-configs/h100x8.yaml}
 SHARDS=${SHARDS:-8}
 BASE_URL=${TEACHER_BASE_URL:-http://localhost:8000/v1}
 
-if [[ ! -d .venv ]]; then
-  python3 -m venv .venv
+if ! command -v uv >/dev/null 2>&1; then
+  echo "[quickstart] ERROR: uv is not installed. Install from https://astral.sh/uv/"
+  exit 1
 fi
-source .venv/bin/activate
 
-pip install -U pip
-pip install -e .
+if [[ ! -d .venv ]]; then
+  uv venv .venv
+fi
+
+uv pip install --python .venv/bin/python -e .
 if [[ -z "${NO_METRICX:=}" ]]; then
-  ./scripts/install_metricx_official.sh
+  METRICX_PYTHON=.venv/bin/python ./scripts/install_metricx_official.sh
 fi
 
 if [[ -z "${VLLM_API_KEY:=}" ]]; then

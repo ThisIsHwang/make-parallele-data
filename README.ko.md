@@ -46,13 +46,18 @@ cp .env.example .env
 
 ---
 
-## 4) 의존성 설치 (단일 venv)
+## 4) uv 설치 + 의존성 설치 (단일 venv)
 
+uv 설치 (없다면):
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -U pip
-pip install -e .
+curl -LsSf https://astral.sh/uv/install.sh | sh
+export PATH="$HOME/.cargo/bin:$PATH"
+```
+
+uv venv 생성 및 의존성 설치:
+```bash
+uv venv .venv
+uv pip install --python .venv/bin/python -e .
 ./scripts/install_metricx_official.sh
 ```
 

@@ -47,13 +47,18 @@ Recommended fields in `.env`:
 
 ---
 
-## 4) Install dependencies (single venv)
+## 4) Install uv + dependencies (single venv)
 
+Install uv (if not installed):
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -U pip
-pip install -e .
+curl -LsSf https://astral.sh/uv/install.sh | sh
+export PATH="$HOME/.cargo/bin:$PATH"
+```
+
+Create venv and install deps:
+```bash
+uv venv .venv
+uv pip install --python .venv/bin/python -e .
 ./scripts/install_metricx_official.sh
 ```
 
@@ -195,7 +200,7 @@ See `configs/example.yaml` / `configs/h100x8.yaml`:
 ## Server deploy helpers
 
 - `./scripts/deploy_server.sh` uses `rsync` to push the repo to a target host.
-- `./scripts/bootstrap_ubuntu.sh` installs a venv and base dependencies.
+- `./scripts/bootstrap_ubuntu.sh` installs uv + venv + base dependencies.
 - `deploy/systemd/vllm.service` is a sample systemd unit for vLLM.
 
 ---
