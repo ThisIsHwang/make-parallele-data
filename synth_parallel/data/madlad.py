@@ -8,7 +8,10 @@ import os
 
 import datasets as hf_datasets
 from datasets import DownloadConfig, load_dataset
-from datasets.exceptions import DataFileNotFoundError
+try:
+    from datasets.exceptions import DataFileNotFoundError
+except ImportError:  # datasets<3 uses plural name
+    from datasets.exceptions import DataFilesNotFoundError as DataFileNotFoundError
 
 from synth_parallel.utils.text import approx_token_len, merge_short, split_lines, split_sentences
 
