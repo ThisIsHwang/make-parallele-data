@@ -9,7 +9,7 @@ authors = [{name = "Codex"}]
 
 dependencies = [
   "pyyaml>=6.0",
-  "datasets>=2.18",
+  "datasets>=2.18,<3.0",
   "tqdm>=4.66",
   "openai>=1.0",
   "httpx>=0.25",

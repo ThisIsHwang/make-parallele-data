@@ -214,5 +214,6 @@ See `configs/example.yaml` / `configs/h100x8.yaml`:
 - MetricX uses official `metricx24` code in Python: `metricx.backend: official_python`.
 - Official repo is installed at `third_party/metricx` by `./scripts/install_metricx_official.sh`.
 - Official requirements pin `transformers==4.30.2`, `datasets==2.13.1`.
+- If you see `Dataset scripts are no longer supported` errors, ensure `datasets<3.0`.
 - If vLLM uses all GPUs, either run MetricX on CPU or run MetricX stages after stopping vLLM.
 - For fast iteration use `--dry-run` or `--limit N`.

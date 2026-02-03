@@ -203,3 +203,4 @@ wait
 - MetricX는 공식 `metricx24` 코드 기반이며, QE 점수는 낮을수록 좋습니다.
 - vLLM이 GPU를 모두 쓰면 MetricX를 CPU로 돌리거나 MetricX 단계만 따로 실행하세요.
 - 빠른 테스트는 `--dry-run` 또는 `--limit N` 옵션 사용.
+- `Dataset scripts are no longer supported` 에러가 나오면 `datasets<3.0` 설치 필요합니다.
