@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import time
 from typing import Any, Dict, Optional
 
@@ -13,6 +14,10 @@ def run(
     cfg: Dict[str, Any],
     run_dir: str,
     limit: Optional[int] = None,
+    shard_id: int = 0,
+    num_shards: int = 1,
+    resume: bool = False,
+    overwrite: bool = False,
 ) -> str:
     start = time.time()
     logger = setup_logger("synth_parallel", cfg["run"]["log_level"])
@@ -79,11 +84,15 @@ def run(
             break
 
     fmt = cfg["export"].get("format", "jsonl")
+    output_path = f"{run_dir}/final.parquet" if fmt == "parquet" else f"{run_dir}/final.jsonl"
+    if resume and not overwrite and os.path.exists(output_path):
+        logger.info("export resume: using existing %s", output_path)
+        return output_path
+    if overwrite and os.path.exists(output_path):
+        os.remove(output_path)
     if fmt == "parquet":
-        output_path = f"{run_dir}/final.parquet"
         maybe_write_parquet(output_path, outputs)
     else:
-        output_path = f"{run_dir}/final.jsonl"
         write_jsonl(output_path, outputs, append=False)
     logger.info("export wrote=%s output=%s", processed, output_path)
 

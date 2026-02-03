@@ -26,6 +26,19 @@ def run(
     output_path = shard_path(f"{run_dir}/filtered.jsonl", shard_id, num_shards)
     rejected_path = shard_path(f"{run_dir}/rejected.jsonl", shard_id, num_shards)
 
+    processed_ids = set()
+    if resume and not overwrite:
+        try:
+            for rec in read_jsonl(output_path):
+                processed_ids.add(rec["source_id"])
+        except FileNotFoundError:
+            pass
+        try:
+            for rec in read_jsonl(rejected_path):
+                processed_ids.add(rec["source_id"])
+        except FileNotFoundError:
+            pass
+
     if overwrite:
         open(output_path, "wb").close()
         open(rejected_path, "wb").close()
@@ -77,8 +90,10 @@ def run(
             for rec in read_jsonl(path):
                 if limit and processed >= limit:
                     break
-                tasks.append(asyncio.create_task(_process_one(rec)))
-                processed += 1
+            if rec["source_id"] in processed_ids:
+                continue
+            tasks.append(asyncio.create_task(_process_one(rec)))
+            processed += 1
                 if log_every and processed % log_every == 0:
                     logger.info(
                         "format_filter progress: processed=%s shard=%s/%s",

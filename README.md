@@ -138,6 +138,8 @@ This will execute all stages in order:
 6) format_filter (sharded)
 7) export
 
+All stages support `--resume` to continue from existing outputs.
+
 ---
 
 ## 8) Manual run (stage by stage)

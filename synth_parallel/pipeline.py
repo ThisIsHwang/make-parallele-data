@@ -36,7 +36,15 @@ def run_stage(
     if stage not in STAGE_FUNCS:
         raise ValueError(f"Unknown stage: {stage}")
     func = STAGE_FUNCS[stage]
-    if stage in ("prefilter_score", "generate_128", "score_select_best", "format_filter"):
+    if stage in (
+        "prefilter_score",
+        "generate_128",
+        "score_select_best",
+        "format_filter",
+        "sample_sources",
+        "select_sources",
+        "export",
+    ):
         return func(
             cfg,
             run_dir,
@@ -46,8 +54,6 @@ def run_stage(
             resume=resume,
             overwrite=overwrite,
         )
-    if stage in ("sample_sources", "select_sources", "export"):
-        return func(cfg, run_dir, limit=limit)
     return func(cfg, run_dir)  # type: ignore
 
 

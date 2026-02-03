@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import time
 from typing import Any, Dict, Optional
 
@@ -15,6 +16,10 @@ def run(
     cfg: Dict[str, Any],
     run_dir: str,
     limit: Optional[int] = None,
+    shard_id: int = 0,
+    num_shards: int = 1,
+    resume: bool = False,
+    overwrite: bool = False,
 ) -> str:
     start = time.time()
     logger = setup_logger("synth_parallel", cfg["run"]["log_level"])
@@ -49,6 +54,13 @@ def run(
         seed=cfg["run"]["seed"],
     )
 
+    output_path = f"{run_dir}/sampled_sources.jsonl"
+    if resume and not overwrite and os.path.exists(output_path):
+        logger.info("sample_sources resume: using existing %s", output_path)
+        return output_path
+    if overwrite:
+        open(output_path, "wb").close()
+
     seen = 0
     log_every = cfg["run"].get("log_every", 10000)
     for seg in iter_segments(cfg, limit=limit, include_blob=blob_enabled):
@@ -81,7 +93,6 @@ def run(
 
     records = sentence_sampler.finalize() + blob_sampler.finalize()
 
-    output_path = f"{run_dir}/sampled_sources.jsonl"
     write_jsonl(output_path, records, append=False)
     logger.info("sample_sources wrote=%s output=%s", len(records), output_path)
 

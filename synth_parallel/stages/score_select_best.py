@@ -24,6 +24,13 @@ def run(
     candidates_path = shard_path(f"{run_dir}/candidates_128.jsonl", shard_id, num_shards)
     output_path = shard_path(f"{run_dir}/selected_best.jsonl", shard_id, num_shards)
 
+    processed_ids = set()
+    if resume and not overwrite:
+        try:
+            for rec in read_jsonl(output_path):
+                processed_ids.add(rec["source_id"])
+        except FileNotFoundError:
+            pass
     if overwrite:
         open(output_path, "wb").close()
 
@@ -48,6 +55,8 @@ def run(
             if limit and processed >= limit:
                 break
             sid = rec["source_id"]
+            if sid in processed_ids:
+                continue
             source = sources_map.get(sid)
             if not source:
                 continue

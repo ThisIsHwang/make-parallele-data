@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import heapq
+import os
 import time
 from typing import Any, Dict, List, Optional
 
@@ -21,11 +22,21 @@ def run(
     cfg: Dict[str, Any],
     run_dir: str,
     limit: Optional[int] = None,
+    shard_id: int = 0,
+    num_shards: int = 1,
+    resume: bool = False,
+    overwrite: bool = False,
 ) -> str:
     start = time.time()
     logger = setup_logger("synth_parallel", cfg["run"]["log_level"])
     input_path = f"{run_dir}/prefilter_candidates.jsonl"
     output_path = f"{run_dir}/selected_sources.jsonl"
+
+    if resume and not overwrite and os.path.exists(output_path):
+        logger.info("select_sources resume: using existing %s", output_path)
+        return output_path
+    if overwrite:
+        open(output_path, "wb").close()
 
     target_total = cfg["data"]["target_examples_total"]
     per_bucket = cfg.get("selection", {}).get("per_bucket", False)

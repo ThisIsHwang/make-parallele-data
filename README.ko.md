@@ -137,6 +137,8 @@ export VLLM_API_KEY="token-abc123"
 6) format_filter (샤딩)
 7) export
 
+모든 stage는 `--resume` 옵션으로 중단 지점부터 재시작 가능합니다.
+
 ---
 
 ## 8) 수동 실행 (stage별)
