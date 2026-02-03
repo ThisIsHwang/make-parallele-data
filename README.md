@@ -143,6 +143,34 @@ All stages support `--resume` to continue from existing outputs.
 
 ---
 
+## 7-A) Split CPU/GPU servers
+
+If Qwen is external and you want to use GPU only for MetricX:
+
+**CPU server (no GPU needed):**
+```bash
+# sample_sources -> select_sources -> generate_128 -> format_filter -> export
+./scripts/run_cpu_stages.sh configs/h100x8.yaml
+```
+
+**GPU server (MetricX only):**
+```bash
+# prefilter_score -> score_select_best
+./scripts/run_gpu_stages.sh configs/h100x8.yaml
+```
+
+Recommended order:
+1) CPU: `sample_sources`
+2) GPU: `prefilter_score`
+3) CPU: `select_sources` + `generate_128`
+4) GPU: `score_select_best`
+5) CPU: `format_filter` + `export`
+
+You can control which stages run via env flags:
+`SAMPLE=0`, `SELECT=0`, `GENERATE=0`, `FILTER=0`, `EXPORT=0`, `PREFILTER=0`, `SCORE=0`.
+
+---
+
 ## 8) Manual run (stage by stage)
 
 ```bash

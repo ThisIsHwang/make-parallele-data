@@ -142,6 +142,34 @@ export VLLM_API_KEY="token-abc123"
 
 ---
 
+## 7-A) CPU/GPU 분리 실행
+
+Qwen을 외부 API로 쓰고, GPU는 MetricX에만 사용하려면:
+
+**CPU 서버:**
+```bash
+# sample_sources -> select_sources -> generate_128 -> format_filter -> export
+./scripts/run_cpu_stages.sh configs/h100x8.yaml
+```
+
+**GPU 서버:**
+```bash
+# prefilter_score -> score_select_best
+./scripts/run_gpu_stages.sh configs/h100x8.yaml
+```
+
+권장 순서:
+1) CPU: `sample_sources`
+2) GPU: `prefilter_score`
+3) CPU: `select_sources` + `generate_128`
+4) GPU: `score_select_best`
+5) CPU: `format_filter` + `export`
+
+필요한 stage만 실행하려면 env 플래그 사용:
+`SAMPLE=0`, `SELECT=0`, `GENERATE=0`, `FILTER=0`, `EXPORT=0`, `PREFILTER=0`, `SCORE=0`.
+
+---
+
 ## 8) 수동 실행 (stage별)
 
 ```bash
