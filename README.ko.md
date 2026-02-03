@@ -56,7 +56,8 @@ export PATH="$HOME/.cargo/bin:$PATH"
 
 uv venv 생성 및 의존성 설치:
 ```bash
-uv venv .venv
+uv python install 3.11
+uv venv --python 3.11 .venv
 uv pip install --python .venv/bin/python -e .
 ./scripts/install_metricx_official.sh
 ```

@@ -17,7 +17,8 @@ if ! command -v uv >/dev/null 2>&1; then
 fi
 
 if [[ ! -d .venv ]]; then
-  uv venv .venv
+  uv python install 3.11
+  uv venv --python 3.11 .venv
 fi
 
 uv pip install --python .venv/bin/python -e .

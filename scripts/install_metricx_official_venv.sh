@@ -17,7 +17,8 @@ if [[ ! -d "$VENV_DIR" ]]; then
     echo "[metricx] ERROR: uv is required. Install from https://astral.sh/uv/"
     exit 1
   fi
-  uv venv "$VENV_DIR"
+  uv python install 3.11
+  uv venv --python 3.11 "$VENV_DIR"
 fi
 
 if [[ -f "$REPO_DIR/requirements.txt" ]]; then

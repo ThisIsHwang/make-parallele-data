@@ -8,7 +8,8 @@ CONFIG ?= configs/h100x8.yaml
 .PHONY: venv install install-metricx vllm pipeline sharded test clean
 
 venv:
-	$(UV) venv $(VENV)
+	$(UV) python install 3.11
+	$(UV) venv --python 3.11 $(VENV)
 
 install: venv
 	$(UV) pip install --python $(PYTHON) -e .

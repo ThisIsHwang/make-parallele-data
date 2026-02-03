@@ -8,7 +8,8 @@ sudo apt-get install -y python3-venv python3-pip git curl
 curl -LsSf https://astral.sh/uv/install.sh | sh
 export PATH="$HOME/.cargo/bin:$PATH"
 
-uv venv .venv
+uv python install 3.11
+uv venv --python 3.11 .venv
 uv pip install --python .venv/bin/python -e .
 # MetricX official deps
 METRICX_PYTHON=.venv/bin/python ./scripts/install_metricx_official.sh

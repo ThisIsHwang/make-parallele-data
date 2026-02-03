@@ -32,6 +32,15 @@ test = [
 [project.scripts]
 synth_parallel = "synth_parallel.cli:main"
 
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["synth_parallel*"]
+exclude = ["tests*", "configs*", "deploy*", "scripts*"]
+
 [tool.pytest.ini_options]
 addopts = "-q"
 testpaths = ["tests"]
