@@ -13,13 +13,13 @@ from synth_parallel.stages import (
 )
 
 STAGE_FUNCS = {
-    "sample_sources": sample_sources.run,
-    "prefilter_score": prefilter_score.run,
-    "select_sources": select_sources.run,
-    "generate_128": generate_128.run,
-    "score_select_best": score_select_best.run,
-    "format_filter": format_filter.run,
-    "export": export.run,
+    "sample_sources": sample_sources,
+    "prefilter_score": prefilter_score,
+    "select_sources": select_sources,
+    "generate_128": generate_128,
+    "score_select_best": score_select_best,
+    "format_filter": format_filter,
+    "export": export,
 }
 
 
