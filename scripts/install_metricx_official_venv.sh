@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY
+
 REPO_DIR=${REPO_DIR:-third_party/metricx}
 VENV_DIR=${VENV_DIR:-.metricx-venv}
 

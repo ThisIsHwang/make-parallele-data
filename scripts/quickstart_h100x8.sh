@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY
+
 if [[ -f .env ]]; then
   set -a
   source .env

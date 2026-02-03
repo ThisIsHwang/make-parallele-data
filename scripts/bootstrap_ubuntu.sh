@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY
+
 sudo apt-get update
 sudo apt-get install -y python3-venv python3-pip git curl
 
