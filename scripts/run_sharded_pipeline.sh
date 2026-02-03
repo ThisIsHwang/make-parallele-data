@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY
-
 CONFIG=${1:-configs/h100x8.yaml}
 SHARDS=${SHARDS:-8}
 RESUME_FLAG=${RESUME_FLAG:---resume}

@@ -30,6 +30,7 @@ class AsyncTeacherClient:
         self.timeout_s = cfg["teacher"]["request_timeout_s"]
         self.max_concurrency = cfg["teacher"]["max_concurrency"]
         self.retry_cfg = cfg["teacher"]["retry"]
+        self.unset_proxies = cfg["teacher"].get("unset_proxies_before_request", True)
         self.validation_cfg = cfg["teacher"].get("validation", {})
         self.client = AsyncOpenAI(base_url=self.base_url, api_key=api_key, timeout=self.timeout_s)
         self._semaphore = asyncio.Semaphore(self.max_concurrency)
@@ -59,6 +60,23 @@ class AsyncTeacherClient:
         if any(not self._is_valid_text(out) for out in outputs):
             raise RuntimeError("Invalid response content from teacher API")
 
+    def _unset_proxy_env(self) -> dict[str, str]:
+        keys = ["http_proxy", "https_proxy", "HTTP_PROXY", "HTTPS_PROXY"]
+        prev: dict[str, str] = {}
+        for k in keys:
+            if k in os.environ:
+                prev[k] = os.environ[k]
+                os.environ.pop(k, None)
+        return prev
+
+    def _restore_proxy_env(self, prev: dict[str, str]) -> None:
+        if not prev:
+            return
+        for k in ["http_proxy", "https_proxy", "HTTP_PROXY", "HTTPS_PROXY"]:
+            os.environ.pop(k, None)
+        for k, v in prev.items():
+            os.environ[k] = v
+
     async def _request(self, payload: Dict[str, Any], request_id: Optional[str]) -> List[str]:
         key = self._idempotency_key(payload, request_id)
         backoff_schedule = get_backoff_schedule(
@@ -67,6 +85,7 @@ class AsyncTeacherClient:
         )
         attempts = 0
         while True:
+            prev_env = self._unset_proxy_env() if self.unset_proxies else {}
             try:
                 async with self._semaphore:
                     resp = await self.client.chat.completions.create(
@@ -86,6 +105,9 @@ class AsyncTeacherClient:
                     raise
                 await sleep_backoff(backoff_schedule[attempts])
                 attempts += 1
+            finally:
+                if prev_env:
+                    self._restore_proxy_env(prev_env)
 
     async def generate(
         self,

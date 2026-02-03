@@ -190,6 +190,7 @@ wait
 - `bucketing.boundaries`
 - `teacher.base_url`, `teacher.model`, `teacher.max_concurrency`
 - `teacher.validation.min_chars`, `teacher.validation.error_substrings`
+- `teacher.unset_proxies_before_request` (Qwen 호출 직전에만 proxy 해제)
 - `final_generation.num_candidates`
 - `metricx.checkpoint`, `metricx.backend`, `metricx.batch_size`, `metricx.device`
 - `filters.llm_judge.enabled`

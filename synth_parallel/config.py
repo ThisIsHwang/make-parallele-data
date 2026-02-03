@@ -53,6 +53,7 @@ DEFAULT_CONFIG: Dict[str, Any] = {
             "max_attempts": 6,
             "backoff_s": [1, 2, 4, 8, 16, 32],
         },
+        "unset_proxies_before_request": True,
         "validation": {
             "min_chars": 1,
             "error_substrings": [

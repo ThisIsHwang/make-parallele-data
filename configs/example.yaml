@@ -40,6 +40,7 @@ teacher:
   retry:
     max_attempts: 6
     backoff_s: [1, 2, 4, 8, 16, 32]
+  unset_proxies_before_request: true
   validation:
     min_chars: 1
     error_substrings: ["traceback", "internal server error", "runtimeerror", "exception", "chat template"]
